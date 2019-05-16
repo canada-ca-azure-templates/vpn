@@ -8,13 +8,13 @@
                     "name": "PwS2-validate-vpn-VNET",
                     "resourceGroup": "PwS2-validate-vpn-RG",
                     "addressPrefixes": [
-                        "172.16.0.0/20"
+                        "10.250.0.0/20"
                     ],
                     "subnets": [
                         {
-                            "name": "test1",
+                            "name": "APP",
                             "properties": {
-                                "addressPrefix": "172.16.1.0/25"
+                                "addressPrefix": "10.250.1.0/24"
                             }
                         }
                     ],

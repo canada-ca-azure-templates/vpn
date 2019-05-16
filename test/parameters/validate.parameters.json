@@ -22,7 +22,7 @@
                     "vpnClientConfiguration": {
                         "vpnClientAddressPool": {
                             "addressPrefixes": [
-                                "172.16.1.0/24"
+                                "10.250.1.0/24"
                             ]
                         },
                         "vpnClientProtocols": [
