@@ -52,7 +52,7 @@ if (-not $devopsCICD) {
 }
 
 if ($subscription -ne "") {
-    Select-AzContext -Subscription $subscription
+    Set-AzContext -Subscription $subscription
 }
 
 # Cleanup validation resource content in case it did not properly completed and left over components are still lingeringcd
