@@ -1,0 +1,11 @@
+trigger:
+- dev
+
+steps:
+- task: AzurePowerShell@3
+  displayName: 'Azure PowerShell script: FilePath'
+  inputs:
+    azureSubscription: '$(azureSubscriptionValidation)'
+    ScriptPath: test/validate.ps1
+    ScriptArguments: '-devopsCICD'
+    azurePowerShellVersion: LatestVersion

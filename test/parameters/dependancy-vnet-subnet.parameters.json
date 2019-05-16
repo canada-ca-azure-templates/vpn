@@ -1,0 +1,26 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vnetArray": {
+            "value": [
+                {
+                    "name": "PwS2-validate-vpn-VNET",
+                    "resourceGroup": "PwS2-validate-vpn-RG",
+                    "addressPrefixes": [
+                        "172.16.0.0/20"
+                    ],
+                    "subnets": [],
+                    "tagValues": {
+                        "Owner": "build.pipeline@tpsgc-pwgsc.gc.ca",
+                        "CostCenter": "PSPC-EA",
+                        "Enviroment": "Validate",
+                        "Classification": "Unclassified",
+                        "Organizations": "PSPC-CCC-E&O",
+                        "DeploymentVersion": "2018-12-13-01"
+                    }
+                }
+            ]
+        }
+    }
+}
