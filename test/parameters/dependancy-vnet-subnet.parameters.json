@@ -10,6 +10,14 @@
                     "addressPrefixes": [
                         "172.16.0.0/20"
                     ],
+                    "subnets": [
+                        {
+                            "name": "test1",
+                            "properties": {
+                                "addressPrefix": "172.16.1.0/25"
+                            }
+                        }
+                    ],
                     "tagValues": {
                         "Owner": "build.pipeline@tpsgc-pwgsc.gc.ca",
                         "CostCenter": "PSPC-EA",
