@@ -1,120 +1,76 @@
-# Template Name
+
+# Virtual Network Gateway
 
 ## Introduction
 
-This template will create an Active Directory forest with 1 or 2 domains, each with 1 or 2 DCs.
-
-The template creates the following: 
-
-* The root domain is always created; the child domain is optional.
-* Choose to have one or two DCs per domain.
-* Choose names for the Domains, DCs, and network objects.  
-* Choose the VM type from a prepopulated list.
-* Use either Windows Server 2012, Windows Server 2012 R2, or Windows Server 2016.
-
-A forest with two domains in Azure is especially useful for AD-related
-development, testing, and troubleshooting. Many enterprises have complex
-Active Directories with multiple domains, so if you are developing an
-application for such companies it makes a lot of sense to use a
-multi-domain Active Directory as well.
-
-The Domain Controllers are placed in an Availability Set to maximize uptime. Each domain has its own Availability set.
-
-The VMs are provisioned with managed disks.  Each VM will have the AD-related management tools installed.
+This template is used to deploy a [Virtual Network Gateway](<https://docs.microsoft.com/en-us/azure/templates/microsoft.network/2018-07-01/virtualnetworkgateways>)
 
 ## Security Controls
 
-The following security controls can be met through configuration of this template:
-
-* Unknown.
+* Unknown
 
 ## Dependancies
 
-The following items are assumed to exist already in the deployment:
+The deployment assumes the following items are already deployed:
 
 * [Resource Group](<https://github.com/canada-ca/accelerators_accelerateurs-azure/blob/master/Templates/arm/resourcegroups/latest/readme.md>)
 * [Virtal Network](<https://github.com/canada-ca/accelerators_accelerateurs-azure/blob/master/Templates/arm/vnet-subnet/latest/readme.md>)
-* [KeyVault](<https://github.com/canada-ca/accelerators_accelerateurs-azure/blob/master/Templates/arm/keyvaults/latest/readme.md>)
 
 ## Parameter format
 
 ```JSON
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "keyVaultResourceGroupName": {
-      "value": "Demo-Keyvault-RG"
-    },
-    "keyVaultName": {
-       "value": "Demo-Keyvault-MGMT"
-    },
-    "DomainName": {
-      "value": "demo.gc.ca.local"
-    },
-    "createChildDomain": {
-      "value": false
-    },
-    "ChildDomainName": {
-      "value": "mgmt"
-    },
-    "VMSize": {
-      "value": "Standard_B2ms"
-    },
-    "vnetRG": {
-      "value": "Demo-NetMGMT-RG"
-    },
-    "vnetName": {
-      "value": "Demo-NetMGMT-VNET"
-    },
-    "vnetAddressRange": {
-      "value": "10.10.0.0/20"
-    },
-    "adSubnetName": {
-      "value": "APP"
-    },
-    "adSubnet": {
-      "value": "10.10.1.0/24"
-    },
-    "RootDC1Name": {
-      "value": "Demo-RootDC01"
-    },
-    "RootDC1IPAddress": {
-      "value": "10.10.1.8"
-    },
-    "RootDC2Name": {
-      "value": "demo-RootDC02"
-    },
-    "RootDC2IPAddress": {
-      "value": "10.10.1.9"
-    },
-    "ChildDC3Name": {
-      "value": "Demo-MgmtDC01"
-    },
-    "ChildDC3IPAddress": {
-      "value": "10.10.1.10"
-    },
-    "ChildDC4Name": {
-      "value": "Demo-MgmtDC02"
-    },
-    "ChildDC4IPAddress": {
-      "value": "10.10.1.11"
-    },
-    "tagValues": {
-      "value": {
-          "workload": "Domain Controller",
-          "owner": "demo.user@demo.gc.ca",
-          "businessUnit": "DEMO-CCC",
-          "costCenterOwner": "DEMO-CCC",
-          "environment": "Sandbox",
-          "classification": "Unclassified",
-          "version": "0.4"
-      },
-      "ReverseZoneObject": {
-        "value":["2.10.10", "1.10.10"]
-      }
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "containerSasToken": {
+            "value": "[SasToken]"
+        },
+        "vpnArray": {
+            "value": [
+                {
+                    "resourceGroup": "Demo-Core",
+                    "vnet": "demo-vnet-core",
+                    "sku": {
+                        "name": "Basic",
+                        "tier": "Basic",
+                        "capacity": 2
+                    },
+                    "gatewayType": "Vpn",
+                    "vpnType": "RouteBased",
+                    "enableBgp": false,
+                    "activeActive": false,
+                    "vpnClientConfiguration": {
+                        "vpnClientAddressPool": {
+                            "addressPrefixes": [
+                                "172.16.1.0/24"
+                            ]
+                        },
+                        "vpnClientProtocols": [
+                            "SSTP"
+                        ],
+                        "vpnClientRootCertificates": [
+                            {
+                                "name": "P2SRootCert",
+                                "properties": {
+                                    "publicCertData": "MIIC5zCCAc+gAwIBAgIQIFzV4QQO+b9Bzf3URxNa5jANBgkqhkiG9w0BAQsFADAW MRQwEgYDVQQDDAtQMlNSb290Q2VydDAeFw0xODA5MTMxMzM3MDVaFw0xOTA5MTMx MzU3MDVaMBYxFDASBgNVBAMMC1AyU1Jvb3RDZXJ0MIIBIjANBgkqhkiG9w0BAQEF AAOCAQ8AMIIBCgKCAQEAvUyme0pEQheswvmknFSfu0tuWdsOGM0RCp2uehgQIGvS aqTU6NlT5FFpYVdTLA4o7OKQXLwXsP3yEyi7/GYGr+dy4P4HEs3hWla/XohVV8hB Yq5wjG3N2MsNnDGpGSQtC5xLx2GbyrBoDdmq8xHoEpzOHnFtnYRB6RYqgsjwoZ/N SeokAnKk8066LA0R31gQcSVrhX0192QtVJmrQ7hfmq+iVKske4Luz2sx3z/Felv5 F9rnOgxC+NC31GANz+O3SWgarm8zAj2mRxTaztTHmWVvRC2bC//MWjYxAGpRnoR9 9CbYWiXxPWj+kkEV5KHcKrh7YIksUb/kV24dDiCUBQIDAQABozEwLzAOBgNVHQ8B Af8EBAMCAgQwHQYDVR0OBBYEFPsWT4Q1V9r3Jzx8YGT45Uzl8VqSMA0GCSqGSIb3 DQEBCwUAA4IBAQCIq5KxqqB1LCNjIsdSXU8PLYla8rR8zSLa+gjd2WzZfZ6gopKL ciVkL3KN0gzLIKsjSs4qyGW+omuEG4mlfoQYJX8qenMIqaWqBMB2zs6jQRZCBvky nl6EAT1LbizlC/ZC0E/0B/ceKRQdjl35pK8g5Z8H4eIe81erx38WdylEFzRhRW5e ngOSG67YdA8Zp68co/+3z0jSCGp0qE9pT6DnP8xbSgHQwweL0qHxvc0Y8NQOANw4 wkR4dJg1NB+BOeDAV8wc4dXt64gMHt/z1j0TZ12/FVphujZuCSMAFK7Yxf5o7Nrk 4/FUwRROi30s4zR9/u/gRNFoRaeecYvt2cBZ"
+                                }
+                            }
+                        ],
+                        "vpnClientRevokedCertificates": [],
+                        "vpnClientIpsecPolicies": []
+                    },
+                    "tagValues": {
+                        "businessOwner": "PSPC-CCC",
+                        "costCenter": "PSPC-EA",
+                        "deploymentStage": "Sandbox",
+                        "dataProfile": "Unclassified",
+                        "version": "0.1"
+                    }
+                }
+            ]
+        }
     }
-  }
 }
 ```
 
@@ -122,31 +78,36 @@ The following items are assumed to exist already in the deployment:
 
 ### Main Template
 
-| Name                      | Type   | Required | Value                                                                                                                                            |
-| ------------------------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| containerSasToken         | string | No       | A SaS token for the private blob storage                                                                                                         |
-| keyVaultResourceGroupName | string | Yes      | Name of the existing resource group for the keyvault                                                                                             |
-| keyVaultName              | string | Yes      | Name of the existing keyvault                                                                                                                    |
-| DomainName                | string | Yes      | Full qualified domain name for the forest root domain                                                                                            |
-| createChildDomain         | bool   | No       | Indicates whether or not to create the child domain.  Default is false                                                                           |
-| ChildDomainName           | string | No       | Full qualified domain name for the child domain                                                                                                  |
-| VMSize                    | enum   | Yes      | Size for the VM's.   See available [VM Sizes](<https://docs.microsoft.com/rest/api/compute/virtualmachines/listavailablesizes>) for more details |
-| vnetRG                    | string | Yes      | Name of the resource group for the virtual network that will be used by the VMs.                                                                 |
-| vnetName                  | string | Yes      | name of the virstual network that will be used by the VMs.                                                                                       |
-| vnetAddressRange          | string | Yes      | The virtual networks address range                                                                                                               |
-| adSubnetName              | string | Yes      | The name of the subnet in which to place the active directory servers                                                                            |
-| adSubnet                  | string | Yes      | The address space for the ad subnet                                                                                                              |
-| RootDC1Name               | string | Yes      | The name of the root domain controller                                                                                                           |
-| RootDC1IPAddress          | string | Yes      | The IP address to use for the root domain controller                                                                                             |
-| RootDC2Name               | string | Yes      | The secondary root domain controller name                                                                                                        |
-| ChildDC3Name              | string | No       | The child domain controller name                                                                                                                 |
-| ChildDC3IPAddress         | string | No       | The child domain controller IP address                                                                                                           |
-| ChildDC4Name              | string | No       | The secondary child domain controller name                                                                                                       |
-| ChildDC4IPAddress         | string | No       | The secondary child domain controller IP address                                                                                                 |
-| ReverseZoneObject         | array  | No       | String array of reverse zone objects to create                                                                                                   |
-| tagValues                 | object | No       | The tags to set for the deployment.  - [tagValues object](###tagvalues-object)                                                                   |
+|Name        |Type   |Required |Value                               |
+|------------|-------|---------|------------------------------------|
+|containerSasToken |string |No      |A SaS token for the private blob storage |
+|vpnArray |array |Yes      |Array of VPN's to deploy - [VpnArray Object](###vpnArray-object) |
 
-### tagValues object
+### VpnArray Object
+
+|Name        |Type   |Required |Value                               |
+|------------|-------|---------|------------------------------------|
+|resourceGroup |string |Yes      |The resource group to deploy the vpn in. |
+|vnet |string |Yes      |The vnet used by the VPN |
+|sku |object |Yes      |The reference of the VirtualNetworkGatewaySku resource which represents the SKU selected for Virtual network gateway. - [VirtualNetworkGatewaySku Object](###virtualnetworkgatewaysku-object) |
+|gatewayType |string |Yes      |The type of gateway to use - Vpn, ExpressRoute |
+|vpnType |string |Yes      |The vpn type to use - PolicyBased, RoutingBased.  Policy-based VPNs encrypt and direct packets through IPsec tunnels based on the IPsec policies configured with the combinations of address prefixes between your on-premises network and the Azure VNet. RouteBased VPNs use "routes" in the IP forwarding or routing table to direct packets into their corresponding tunnel interfaces.  See [About VPN Gateway configuration settings](<https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-about-vpn-gateway-settings>) for more details.  |
+|enableBgp |bool |Yes      |Whether BGP is enabled for this virtual network gateway or not |
+|activeActive |bool|Yes      |ActiveActive or not. |
+|vpnClientConfiguration |object |Yes      |The reference of the VpnClientConfiguration resource which represents the P2S VpnClient configurations. - [VpnClientConfiguration object](###vpnclientconfiguration-object)|
+| tagValues             | object | Yes      | An object of tags - [Tag Object](###tag-object)|
+
+### VpnClientConfiguration Object
+
+|Name        |Type   |Required |Value                               |
+|------------|-------|---------|------------------------------------|
+|vpnClientRevokedCertificates |array |No      |VpnClientRevokedCertificate for Virtual network gateway. - [VpnClientRevokedCertificate Object](#vpnclientrevokedcertificate-object)|
+|vpnClientIpsecPolicies |array |No      |VpnClientIpsecPolicies for virtual network gateway P2S client. - [IpsecPolicy Object](###ipsecpolicy-object)|
+|vpnClientAddressPool |array |No      |The reference of the address space resource which represents Address space for P2S VpnClient. - [AddressSpace Object](###addressspace-object) |
+|vpnClientProtocols |array |No      |VpnClientProtocols for Virtual network gateway. - IkeV2, SSTP, OpenVPN |
+|vpnClientRootCertificates |array |No      |VpnClientRootCertificate for virtual network gateway. - [VpnClientRootCertificate Object](###vpnclientrootcertificate-object)|
+
+### Tag object
 
 | Name     | Type   | Required | Value      |
 | -------- | ------ | -------- | ---------- |
@@ -154,28 +115,66 @@ The following items are assumed to exist already in the deployment:
 | ...      | ...    | ...      | ...        |
 | tagnameX | string | No       | tagX value |
 
-### Credits
+### VirtualNetworkGatewaySku Object
 
-This project was initially copied from the
-[active-directory-new-domain-ha-2-dc](https://github.com/Azure/azure-quickstart-templates/tree/master/active-directory-new-domain-ha-2-dc)
-project by Simon Davies, part of the the Azure Quickstart templates.
+|Name        |Type   |Required |Value                               |
+|------------|-------|---------|------------------------------------|
+|name        |string|Yes| Gateway SKU name. - Basic, HighPerformance, Standard, UltraPerformance, VpnGw1, VpnGw2, VpnGw3, VpnGw1AZ, VpnGw2AZ, VpnGw3AZ, ErGw1AZ, ErGw2AZ, ErGw3AZ|
+|tier        |string|Yes| Gateway SKU tier. - Basic, HighPerformance, Standard, UltraPerformance, VpnGw1, VpnGw2, VpnGw3, VpnGw1AZ, VpnGw2AZ, VpnGw3AZ, ErGw1AZ, ErGw2AZ, ErGw3AZ|
+|capacity    |int   | Yes| The number of gateways to deploy |
+
+### AddressSpace Object
+
+|Name |Type | Required | Value |
+|-----|-----|----------|-------|
+|addressPrefixes |array |No |A list of address blocks reserved for this virtual network in CIDR notation. - string|
+
+### VpnClientRootCertificate object
+
+|Name |Type | Required | Value |
+|-----|-----|----------|-------|
+|id |string |No |Resource ID.|
+|properties |object |Yes |Properties of the vpn client root certificate. - [VpnClientRootCertificatePropertiesFormat Object](###vpnclientrootcertificatepropertiesformat-object)|
+|name |string |No |The name of the resource that is unique within a resource group. This name can be used to access the resource.|
+
+### VpnClientRevokedCertificate object
+
+|Name |Type | Required | Value |
+|-----|-----|----------|-------|
+|id |string |No |Resource ID.|
+|properties |object |No |Properties of the vpn client revoked certificate. - VpnClientRevokedCertificatePropertiesFormat Object](###vpnclientrevokedcertificatepropertiesformat-object) |
+|name |string |No |The name of the resource that is unique within a resource group. This name can be used to access the resource. |
+
+### IpsecPolicy object
+
+|Name |Type | Required | Value |
+|-----|-----|----------|-------|
+|saLifeTimeSeconds |integer |Yes |The IPSec Security Association (also called Quick Mode or Phase 2 SA) lifetime in seconds for a site to site VPN tunnel. 
+|saDataSizeKilobytes |integer |Yes |The IPSec Security Association (also called Quick Mode or Phase 2 SA) payload size in KB for a site to site VPN tunnel. |
+|ipsecEncryption |enum |Yes |The IPSec encryption algorithm (IKE phase 1). - None, DES, DES3, AES128, AES192, AES256, GCMAES128, GCMAES192, GCMAES256 |
+|ipsecIntegrity |enum |Yes |The IPSec integrity algorithm (IKE phase 1). - MD5, SHA1, SHA256, GCMAES128, GCMAES192, GCMAES256|
+|ikeEncryption |enum |Yes |The IKE encryption algorithm (IKE phase 2). - DES, DES3, AES128, AES192, AES256, GCMAES256, GCMAES128|
+|ikeIntegrity |enum |Yes |The IKE integrity algorithm (IKE phase 2). - MD5, SHA1, SHA256, SHA384, GCMAES256, GCMAES128 |
+|dhGroup |enum |Yes |The DH Groups used in IKE Phase 1 for initial SA. - None, DHGroup1, DHGroup2, DHGroup14, DHGroup2048, ECP256, ECP384, DHGroup24|
+|pfsGroup |enum |Yes |The Pfs Groups used in IKE Phase 2 for new child SA. - None, PFS1, PFS2, PFS2048, ECP256, ECP384, PFS24, PFS14, PFSMM |
+
+### VpnClientRootCertificatePropertiesFormat Object
+
+|Name |Type | Required | Value |
+|-----|-----|----------|-------|
+|publicCertData |string |Yes |The certificate public data.|
+
+### VpnClientRevokedCertificatePropertiesFormat Object
+
+|Name |Type | Required | Value |
+|-----|-----|----------|-------|
+|thumbprint |string |No |The revoked VPN client certificate thumbprint. |
 
 ## History
 
-| Date     | Release                                                                                 | Change                                                                                                    |
-| -------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| 20181031 |                                                                                         | Removed network creation                                                                                  |
-|          |                                                                                         | Moved username and password to keyvault                                                                   |
-|          |                                                                                         | Removed network dependencies from NSG, VMs                                                                |
-|          |                                                                                         | Changed container sasToken parameter                                                                      |
-|          |                                                                                         | Set artifact location default as: deployment().properties.templateLink.uri                                |
-|          |                                                                                         | Combined firstVMTemplateUri and nextVMTemplateUri as they call the same file                              |
-|          |                                                                                         | Added vnet information to parameters                                                                      |
-|          |                                                                                         | Added new DS_v3 sizes and removed lower one core ones.                                                    |
-|          |                                                                                         | Added "Microsoft.Resources/deployments/CreateForest" dependency to Childdomain as it would sometimes fail |
-|          |                                                                                         | Removed updateDNS for now as it needs to be modified                                                      |
-|          |                                                                                         | Added in common tag structure                                                                             |
-|          |                                                                                         | Added timezone to default to EST                                                                          |
-|          |                                                                                         | Added Forward Zones as an optional parameter                                                              |
-| 20190508 |                                                                                         | Updated documentation                                                                                     |
-| 20190516 | [20190516](https://github.com/canada-ca-azure-templates/active-directory/tree/20190516) | Rename base template to active-directory.json. Created test validation.                                   |
+|Date       | Change                |
+|-----------|-----------------------|
+|20181214   | Implementing new template name as template.json|
+|20190205   | Cleanup template folder
+|20190207   | Moved to git submodule|
+|20190429   | Updated documentation|

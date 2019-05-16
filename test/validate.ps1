@@ -52,25 +52,27 @@ if (-not $devopsCICD) {
 }
 
 if ($subscription -ne "") {
-    Set-AzContext -Subscription $subscription
+    Select-AzureRmSubscription -Subscription $subscription
 }
 
 # Cleanup validation resource content in case it did not properly completed and left over components are still lingeringcd
 if (-not $doNotCleanup) {
-    $RG = Get-AzResourceGroup -ResourceGroupName PwS2-validate-$templateLibraryName-RG
-    if ($RG) {
-        Write-Host "Cleanup old $templateLibraryName validation resources if needed...";
-    
-        New-AzResourceGroupDeployment -ResourceGroupName PwS2-validate-$templateLibraryName-RG -Mode Complete -TemplateFile (Resolve-Path "$PSScriptRoot\parameters\cleanup.json") -Force -Verbose
+    #check for existing resource group
+    $resourceGroup = Get-AzureRmResourceGroup -Name PwS2-validate-$templateLibraryName-RG -ErrorAction SilentlyContinue
+
+    if ($resourceGroup) {
+        Write-Host "Cleanup old $templateLibraryName template validation resources if needed..."
+
+        Remove-AzureRmResourceGroup -Name PwS2-validate-$templateLibraryName-RG -Verbose -Force
     }
 }
 
 # Start the deployment
 Write-Host "Starting $templateLibraryName dependancies deployment...";
 
-New-AzDeployment -Location $Location -Name "Deploy-Infrastructure-Dependancies" -TemplateUri "https://raw.githubusercontent.com/canada-ca-azure-templates/masterdeploy/20190514/template/masterdeploysub.json" -TemplateParameterFile (Resolve-Path -Path "$PSScriptRoot\parameters\masterdeploysub.parameters.json") -baseParametersURL $baseParametersURL -Verbose;
+New-AzureRmDeployment -Location $Location -Name "Deploy-$templateLibraryName-Template-Infrastructure-Dependancies" -TemplateUri "https://raw.githubusercontent.com/canada-ca-azure-templates/masterdeploy/20190514/template/masterdeploysub.json" -TemplateParameterFile (Resolve-Path -Path "$PSScriptRoot\parameters\masterdeploysub.parameters.json") -baseParametersURL $baseParametersURL -Verbose;
 
-$provisionningState = (Get-AzDeployment -Name "Deploy-Infrastructure-Dependancies").ProvisioningState
+$provisionningState = (Get-AzureRmDeployment -Name "Deploy-$templateLibraryName-Template-Infrastructure-Dependancies").ProvisioningState
 
 if ($provisionningState -eq "Failed") {
     Write-Host "One of the jobs was not successfully created... exiting..."
@@ -80,9 +82,9 @@ if ($provisionningState -eq "Failed") {
 # Validating server template
 Write-Host "Starting $templateLibraryName validation deployment...";
 
-New-AzResourceGroupDeployment -ResourceGroupName PwS2-validate-$templateLibraryName-RG -Name "validate-$templateLibraryName-template" -TemplateUri $validationURL -TemplateParameterFile (Resolve-Path "$PSScriptRoot\parameters\validate.parameters.json") -Verbose
+New-AzureRmResourceGroupDeployment -ResourceGroupName PwS2-validate-$templateLibraryName-RG -Name "validate-$templateLibraryName-template" -TemplateUri $validationURL -TemplateParameterFile (Resolve-Path "$PSScriptRoot\parameters\validate.parameters.json") -Verbose
 
-$provisionningState = (Get-AzResourceGroupDeployment -ResourceGroupName PwS2-validate-$templateLibraryName-RG -Name "validate-$templateLibraryName-template").ProvisioningState
+$provisionningState = (Get-AzureRmResourceGroupDeployment -ResourceGroupName PwS2-validate-$templateLibraryName-RG -Name "validate-$templateLibraryName-template").ProvisioningState
 
 if ($provisionningState -eq "Failed") {
     Write-Host  "Test deployment failed..."
@@ -90,7 +92,7 @@ if ($provisionningState -eq "Failed") {
 
 # Cleanup validation resource content
 if (-not $doNotCleanup) {
-    Write-Host "Cleanup old $templateLibraryName validation resources...";
+    Write-Host "Cleanup $templateLibraryName template validation resources...";
 
-    New-AzResourceGroupDeployment -ResourceGroupName PwS2-validate-$templateLibraryName-RG -Mode Complete -TemplateFile (Resolve-Path "$PSScriptRoot\parameters\cleanup.json") -Force -Verbose
+    Remove-AzureRmResourceGroup -Name PwS2-validate-$templateLibraryName-RG -Verbose -Force
 }
