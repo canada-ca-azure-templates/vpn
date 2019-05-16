@@ -13,8 +13,9 @@ This template is used to deploy a [Virtual Network Gateway](<https://docs.micros
 
 The deployment assumes the following items are already deployed:
 
-* [Resource Group](<https://github.com/canada-ca/accelerators_accelerateurs-azure/blob/master/Templates/arm/resourcegroups/latest/readme.md>)
-* [Virtal Network](<https://github.com/canada-ca/accelerators_accelerateurs-azure/blob/master/Templates/arm/vnet-subnet/latest/readme.md>)
+
+* [Resource Group](<https://github.com/canada-ca-azure-templates/resourcegroups>)
+* [Virtal Network](<https://github.com/canada-ca-azure-templates/vnet-subnet>)
 
 ## Parameter format
 
@@ -172,9 +173,10 @@ The deployment assumes the following items are already deployed:
 
 ## History
 
-|Date       | Change                |
-|-----------|-----------------------|
-|20181214   | Implementing new template name as template.json|
-|20190205   | Cleanup template folder
-|20190207   | Moved to git submodule|
-|20190429   | Updated documentation|
+|Date       |Release| Change                |
+|-----------|-------|-----------------------|
+|20181214   | |Implementing new template name as template.json|
+|20190205   | |Cleanup template folder
+|20190207   | |Moved to git submodule|
+|20190429   | |Updated documentation|
+| 20190516 | [20190516](https://github.com/canada-ca-azure-templates/vpn/tree/20190516) | Created test validation.  |
