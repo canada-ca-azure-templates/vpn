@@ -12,7 +12,7 @@
                     ],
                     "subnets": [
                         {
-                            "name": "APP",
+                            "name": "GatewaySubnet",
                             "properties": {
                                 "addressPrefix": "10.250.1.0/24"
                             }
