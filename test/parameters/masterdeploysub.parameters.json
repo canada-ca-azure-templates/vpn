@@ -1,0 +1,25 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "deploymentSubArray": {
+            "value": [
+                {
+                    "name": "resourcegroups",
+                    "location": "canadacentral",
+                    "templateLink": "https://raw.githubusercontent.com/canada-ca-azure-templates/resourcegroups/20190514/template/azuredeploysub.json",
+                    "parametersFile": "dependancy-resourcegroups-canadacentral.parameters.json"
+                },
+                {
+                    "name": "vnet-subnet",
+                    "location": "canadacentral",
+                    "templateLink": "https://raw.githubusercontent.com/canada-ca-azure-templates/vnet-subnet/20190516/template/azuredeploysub.json",
+                    "parametersFile": "dependancy-vnet-subnet.parameters.json",
+                    "dependsOn": [
+                        "resourcegroups"
+                    ]
+                }
+            ]
+        }
+    }
+}
