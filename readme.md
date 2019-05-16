@@ -13,6 +13,7 @@ This template is used to deploy a [Virtual Network Gateway](<https://docs.micros
 
 The deployment assumes the following items are already deployed:
 
+
 * [Resource Group](<https://github.com/canada-ca-azure-templates/resourcegroups>)
 * [Virtal Network](<https://github.com/canada-ca-azure-templates/vnet-subnet>)
 
@@ -178,4 +179,4 @@ The deployment assumes the following items are already deployed:
 |20190205   | |Cleanup template folder
 |20190207   | |Moved to git submodule|
 |20190429   | |Updated documentation|
-| 20190516 | [20190516](https://github.com/canada-ca-azure-templates/vpn/tree/20190516) | Created test validation.  
+| 20190516 | [20190516](https://github.com/canada-ca-azure-templates/vpn/tree/20190516) | Created test validation.  |
